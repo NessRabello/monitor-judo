@@ -10,7 +10,7 @@ API_KEY = os.environ.get('API_KEY')            # A chave que você pegou no pass
 # Palavras-chave que indicam oportunidade ou brecha
 KEYWORDS = [
     "seletiva", "edital", "aberta", "inscrição", "processo seletivo", 
-    "campeonato brasileiro", "troféu brasil", "ranking", "regulamento"
+    "campeonato brasileiro", "troféu brasil", "ranking", "regulamento", "judô", "judo", "rio"
 ]
 
 def send_whatsapp_message(message):
@@ -87,4 +87,5 @@ def main():
         print("Nenhuma oportunidade encontrada hoje com as palavras-chave.")
 
 if __name__ == "__main__":
+
     main()
