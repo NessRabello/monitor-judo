@@ -43,11 +43,15 @@ def main():
     all_alerts = []
     
     # Lista de alvos: Judô + Recursos Governamentais
-    targets = [
+targets = [
         ("https://cbj.com.br/noticias/", "CBJ Notícias"),
         ("https://fjerj.com.br/boletins/", "FJERJ Boletins"),
-        ("http://www.esporte.rj.gov.br/", "Secretaria Esporte RJ"), # Lei de Incentivo e editais estaduais
-        ("https://www.gov.br/esporte/pt-br/noticias", "Ministério do Esporte"), # Verbas federais e Bolsa Atleta
+        ("http://www.esporte.rj.gov.br/", "Secretaria Esporte RJ"), # Lei de Incentivo/ICMS
+        ("https://www.gov.br/esporte/pt-br/noticias", "Ministério do Esporte"), # Bolsa Atleta
+        ("https://www.petropolis.rj.gov.br/pmp/index.php/servicos-na-web/informacoes/diario-oficial.html", "D.O. Petrópolis"),
+        ("https://duquedecaxias.rj.gov.br/boletim-oficial", "D.O. Duque de Caxias"),
+        ("https://www.rio.rj.gov.br/web/smel/", "SMEL Rio (Campo Grande)"),
+        ("http://pge.rj.gov.br/imprensa/diario-oficial", "Diário Oficial do Estado (RJ)")
     ]
     
     for url, name in targets:
@@ -63,3 +67,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
