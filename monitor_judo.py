@@ -8,9 +8,7 @@ CHAT_ID = os.environ.get('CHAT_ID')
 
 # Suas palavras-chave de monitoramento
 KEYWORDS = [
-    "seletiva", "edital", "aberta", "inscrição", "processo seletivo", 
-    "campeonato brasileiro", "troféu brasil", "ranking", "regulamento", 
-    "judô", "judo", "rio", "fjerj"
+    "seletiva", "edital", "aberta", "inscrição", "vaga", "convocação", "chamada pública", "fomento", "incentivo"
 ]
 
 def send_telegram_message(message):
@@ -66,3 +64,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
