@@ -1,0 +1,23 @@
+name: Executar TatameRadar
+
+on:
+  schedule:
+    - cron: '0 12 * * *' # Isso roda todo dia às 09:00 (Horário de Brasília)
+  workflow_dispatch: # Isso permite que você rode o bot manualmente quando quiser
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Configurar Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Instalar Dependências
+      run: pip install -r requirements.txt
+    - name: Rodar Radar
+      env:
+        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+        CHAT_ID: ${{ secrets.CHAT_ID }}
+      run: python monitor_judo.py
