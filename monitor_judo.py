@@ -2,66 +2,64 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
-# Puxa as chaves que você configurou no GitHub Secrets
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 CHAT_ID = os.environ.get('CHAT_ID')
 
-# Suas palavras-chave de monitoramento
+# Focado em Oportunidades de Competição e de Verbas para a ONG
 KEYWORDS = [
-    "seletiva", "edital", "aberta", "inscrição", "vaga", "convocação", "chamada pública", "fomento", "incentivo"
+    "seletiva", "edital", "aberta", "inscrição", "regulamento", 
+    "chamamento", "fomento", "incentivo", "vaga", "convocação"
 ]
 
 def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    payload = {"chat_id": CHAT_ID, "text": message, "parse_mode": "Markdown"}
-    try:
-        requests.post(url, data=payload)
-    except Exception as e:
-        print(f"Erro ao enviar: {e}")
+    payload = {"chat_id": CHAT_ID, "text": message, "parse_mode": "Markdown", "disable_web_page_preview": True}
+    requests.post(url, data=payload)
 
-def check_site(url, site_name):
+def scan_site(url, site_name):
     try:
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-        response = requests.get(url, headers=headers, timeout=20)
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        response = requests.get(url, headers=headers, timeout=25)
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # O Radar agora varre TUDO que for texto clicável (links)
-        links = soup.find_all('a')
-        
         found = []
-        seen_titles = set()
-
-        for link in links:
-            text = link.get_text().strip().lower()
-            href = link.get('href', '')
-            
-            # Se o texto do link tiver uma das palavras-chave
+        # Varre links e títulos atrás de oportunidades
+        for el in soup.find_all(['a', 'h2', 'h3']):
+            text = el.get_text().strip().lower()
             if any(word in text for word in KEYWORDS):
-                if text not in seen_titles and len(text) > 10:
-                    full_url = href if href.startswith('http') else url + href
-                    found.append(f"🥋 *{site_name}*: {text.upper()}\n🔗 {full_url}")
-                    seen_titles.add(text)
-        
-        return found[:5] # Pega as 5 notícias mais recentes para não lotar o chat
-    except Exception as e:
-        print(f"Erro no site {site_name}: {e}")
+                link_tag = el if el.name == 'a' else el.find_parent('a')
+                href = link_tag.get('href', '') if link_tag else url
+                
+                if len(text) > 10:
+                    full_url = href if href.startswith('http') else url.split('.br')[0] + ".br" + href
+                    entry = f"🚀 *{site_name}*: {text.upper()}\n🔗 {full_url}"
+                    if entry not in found:
+                        found.append(entry)
+        return found[:3]
+    except:
         return []
 
 def main():
-    print("TatameRadar iniciando ronda...")
-    results = []
+    all_alerts = []
     
-    # Sites da Confederação e da Federação Estadual
-    results.extend(check_site("https://cbj.com.br/noticias/", "CBJ"))
-    results.extend(check_site("https://fjerj.com.br/noticias/", "FJERJ"))
+    # Lista de alvos: Judô + Recursos Governamentais
+    targets = [
+        ("https://cbj.com.br/noticias/", "CBJ Notícias"),
+        ("https://fjerj.com.br/boletins/", "FJERJ Boletins"),
+        ("http://www.esporte.rj.gov.br/", "Secretaria Esporte RJ"), # Lei de Incentivo e editais estaduais
+        ("https://www.gov.br/esporte/pt-br/noticias", "Ministério do Esporte"), # Verbas federais e Bolsa Atleta
+    ]
     
-    if results:
-        # Envia cada notícia encontrada para o seu irmão não perder nada
-        full_message = "🛰️ *TATAME RADAR IDENTIFICOU:* \n\n" + "\n\n".join(results)
-        send_telegram_message(full_message)
+    for url, name in targets:
+        print(f"Limpando a área em {name}...")
+        all_alerts.extend(scan_site(url, name))
+    
+    if all_alerts:
+        msg = "🛰️ *TATAME RADAR: RELATÓRIO DE OPORTUNIDADES*\n\n" + "\n\n".join(all_alerts)
+        send_telegram_message(msg)
     else:
-        print("Nada relevante hoje.")
+        # Avisa que o bot está vivo, mas sem novidades críticas
+        send_telegram_message("📡 *TatameRadar*: Ronda concluída. Nenhuma seletiva ou edital de fomento novo hoje.")
 
 if __name__ == "__main__":
     main()
-
